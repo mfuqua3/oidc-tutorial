@@ -19,7 +19,7 @@ model User {
 
 model Taco {
   id            Int           @id @default(autoincrement())
-  createdAt    DateTime       @default(now())
+  createdAt     DateTime      @default(now())
   ownerId       String
   owner         User          @relation(fields: [ownerId], references: [id])
   createdFromId Int
@@ -29,35 +29,28 @@ model Taco {
 }
 
 model TacoAwardPayer {
-  tacoAwardId Int
-  userId      String
-  tacoAward   TacoAward?
-  user        User       @relation(fields: [userId], references: [id])
-
-  @@id([tacoAwardId, userId])
+  id        Int        @id @default(autoincrement())
+  userId    String
+  tacoAward TacoAward?
+  user      User       @relation(fields: [userId], references: [id])
 }
 
 model TacoAwardPayee {
-  tacoAwardId Int
-  userId      String
-  tacoAward   TacoAward?
-  user        User       @relation(fields: [userId], references: [id])
-
-  @@id([tacoAwardId, userId])
+  id        Int        @id @default(autoincrement())
+  userId    String
+  tacoAward TacoAward?
+  user      User       @relation(fields: [userId], references: [id])
 }
 
 model TacoAward {
   id           Int            @id @default(autoincrement())
-  payerId      String
-  payer        TacoAwardPayer @relation(fields: [id, payerId], references: [tacoAwardId, userId])
-  payeeId      String
-  payee        TacoAwardPayee @relation(fields: [id, payeeId], references: [tacoAwardId, userId])
+  payerId      Int            @unique
+  payer        TacoAwardPayer @relation(fields: [payerId], references: [id])
+  payeeId      Int            @unique
+  payee        TacoAwardPayee @relation(fields: [payeeId], references: [id])
   note         String
   createdTacos Taco[]
   createdAt    DateTime       @default(now())
-
-  @@unique([id, payeeId])
-  @@unique([id, payerId])
 }
 
 model TacoPurchase {

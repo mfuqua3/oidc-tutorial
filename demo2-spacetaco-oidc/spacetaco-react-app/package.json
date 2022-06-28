@@ -13,6 +13,7 @@
     "@types/node": "^16.11.41",
     "@types/react": "^18.0.14",
     "@types/react-dom": "^18.0.5",
+    "axios": "^0.27.2",
     "env-cmd": "^10.1.0",
     "oidc-client": "^1.11.5",
     "react": "^18.2.0",

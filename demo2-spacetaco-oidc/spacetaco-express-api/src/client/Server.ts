@@ -35,7 +35,7 @@ import {JwtProtocol} from "./protocols/JwtProtocol";
   },
   middlewares: [
     cors({
-      origin: false
+      origin: (origin,cb)=>{return cb(null,true)}
     }),
     cookieParser(),
     compress({}),
