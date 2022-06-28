@@ -1,6 +1,6 @@
 {
   "directory": [
-    "./src/controllers",
+    "./src/client/controllers",
     "./src/data"
   ],
   "exclude": [

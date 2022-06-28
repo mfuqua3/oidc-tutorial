@@ -5,7 +5,7 @@ export interface IAuthService {
     signinRedirectCallback: () => void;
     getUser: () => Promise<any>;
     parseJwt: (token: string) => any;
-    signinRedirect: () => void;
+    signInRedirect: () => void;
     navigateToScreen: () => void;
     isAuthenticated: () => boolean;
     signinSilent: () => void;
@@ -69,7 +69,7 @@ export default class AuthService implements IAuthService {
     };
 
 
-    signinRedirect = () => {
+    signInRedirect = () => {
         localStorage.setItem("redirectUri", window.location.pathname);
         this.UserManager.signinRedirect({});
     };

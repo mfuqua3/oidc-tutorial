@@ -10,11 +10,9 @@ import { Strategy } from "passport-http-bearer";
  * decorators to require an authenticated user for endpoints or controllers.*/
 @Protocol({
     name: "jwt",
-    useStrategy: Strategy,
+    useStrategy: Strategy
 })
 export class JwtProtocol implements OnVerify {
-    @Value("jwt.audience")
-    audience: string;
     @Value("jwt.issuer")
     issuer: string;
     @Inject()
@@ -24,7 +22,6 @@ export class JwtProtocol implements OnVerify {
     async $onVerify(@Req() req: Req, @Arg(0) jwtPayload: string) {
         this.logger.info("JWT Bearer challenged.");
         const authenticationResult = await this.authenticationHandler.handleTokenAsync(jwtPayload, {
-            audience: this.audience,
             issuer: this.issuer,
         });
         if (authenticationResult.failure) {

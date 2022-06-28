@@ -67,5 +67,5 @@ export const ClaimTypes = {
      * @type {string}
      * @memberOf ClaimTypes
      */
-    Scopes: "scope",
+    Scope: "scope",
 };

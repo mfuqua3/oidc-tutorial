@@ -2,6 +2,7 @@ import { Injectable, OnInit } from "@tsed/di";
 import JwksRsa from "jwks-rsa";
 import { OidcConfigurationManager } from "./OidcConfigurationManager";
 import { ArgumentNullException, ServiceInitializationException } from "../../exceptions";
+import https from "https";
 
 @Injectable()
 export class JwksClient implements OnInit {
@@ -26,6 +27,10 @@ export class JwksClient implements OnInit {
       jwksUri: config?.jwksUri,
       rateLimit: true,
       jwksRequestsPerMinute: 10,
+      //DISABLES SSL CERT VALIDATION, DO NOT COPY FOR PROD CODE
+      requestAgent: new https.Agent({
+        rejectUnauthorized: false
+      })
     });
   }
 

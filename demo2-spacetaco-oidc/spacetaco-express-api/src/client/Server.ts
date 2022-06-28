@@ -9,7 +9,10 @@ import methodOverride from "method-override";
 import cors from "cors";
 import "@tsed/ajv";
 import {config} from "../utils/config";
-import * as rest from "./controllers/rest";
+import * as api from "./controllers";
+import {ClaimsPrincipal} from "../utils/claims";
+import AuthorizationModule from "./authorization";
+import {JwtProtocol} from "./protocols/JwtProtocol";
 
 @Configuration({
   ...config,
@@ -17,20 +20,30 @@ import * as rest from "./controllers/rest";
   httpPort: process.env.PORT || 8083,
   httpsPort: false, // CHANGE
   componentsScan: false,
+  passport: {
+    disableSession: true,
+    userInfoModel: ClaimsPrincipal,
+  },
+  authentication: {
+    protocols: ["jwt"],
+  },
+  imports: [AuthorizationModule, JwtProtocol],
   mount: {
-    "/rest": [
-      ...Object.values(rest)
+    "/api": [
+      ...Object.values(api)
     ]
   },
   middlewares: [
-    cors(),
+    cors({
+      origin: false
+    }),
     cookieParser(),
     compress({}),
     methodOverride(),
     bodyParser.json(),
     bodyParser.urlencoded({
       extended: true
-    })
+    }),
   ],
   views: {
     root: join(process.cwd(), "../views"),

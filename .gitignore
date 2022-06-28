@@ -351,3 +351,4 @@ MigrationBackup/
 demo2-spacetaco-oidc/FortyAu.Dotnet.Idp/.idea/
 *.idea
 *.env*
+demo2-spacetaco-oidc/FortyAu.Dotnet.Idp/FortyAu.Dotnet.Idp/appsettings.development.json

@@ -12,7 +12,7 @@ function App() {
       <Routes>
         <Route path={"/"} element={
           <>
-            <Button onClick={()=> auth.signinRedirect()}>Sign In</Button>
+            <Button onClick={()=> auth.signInRedirect()}>Sign In</Button>
           </>
         }></Route>
         <Route path={"/signin-oidc"} element={<Callback/>}/>

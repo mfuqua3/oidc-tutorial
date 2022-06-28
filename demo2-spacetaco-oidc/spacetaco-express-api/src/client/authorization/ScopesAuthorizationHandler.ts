@@ -16,9 +16,10 @@ export class ScopesAuthorizationHandler implements IAuthorizationHandler {
     if (!requirements || requirements.length === 0) {
       return AuthorizationResult.success();
     }
-    const scopeClaims = user.findAll(ClaimTypes.Scopes).map((c) => c.value);
-    for (const permissionRequirement in requirements) {
-      if (!scopeClaims.includes(permissionRequirement)) {
+    const scopeClaims = user.findAll(ClaimTypes.Scope).map((c) => c.value);
+    const permittedScopes = scopeClaims.map(scopeClaim=>scopeClaim.split(' ')).flatMap(x=>x);
+    for (const requiredScope of requirements) {
+      if (!permittedScopes.includes(requiredScope)) {
         return AuthorizationResult.failed(`Access denied, requires the following access to the following scopes: (${requirements.join("|")})`);
       }
     }

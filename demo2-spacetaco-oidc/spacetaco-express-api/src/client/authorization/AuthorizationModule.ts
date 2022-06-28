@@ -1,6 +1,6 @@
 import { Env, Type } from "@tsed/core";
 import { Module } from "@tsed/di";
-import { ScopesAuthorizationHandler } from "./PermissionsAuthorizationHandler";
+import { ScopesAuthorizationHandler } from "./ScopesAuthorizationHandler";
 
 @Module({
   authorizationHandlers: [ScopesAuthorizationHandler],
