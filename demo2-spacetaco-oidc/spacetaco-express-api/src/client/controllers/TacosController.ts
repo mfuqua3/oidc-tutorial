@@ -8,6 +8,7 @@ import {TacoModel} from "../models/TacoModel";
 import {TacoService} from "../../service/TacoService";
 import {Unauthorized} from "@tsed/exceptions";
 import {Authorize} from "../decorators/AuthorizeDecorator";
+import {UserSummaryModel} from "../models/UserSummaryModel";
 
 @ApiController("tacos")
 export class TacosController {
@@ -29,5 +30,15 @@ export class TacosController {
     @Returns(200, TacoModel)
     async getTacos() {
         return await this.tacoService.getTacos();
+    }
+
+    @Get("/me")
+    @Authorize({scopes: "read:tacos"})
+    @Returns(200,UserSummaryModel)
+    async getUserTacoSummary(@Req("user") user: ClaimsPrincipal) {
+        if (!user?.userId) {
+            throw new Unauthorized("User is not authenticated");
+        }
+        return await this.tacoService.getUserTacoSummary(user.userId);
     }
 }

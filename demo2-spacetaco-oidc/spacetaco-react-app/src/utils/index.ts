@@ -11,7 +11,7 @@ export const IDENTITY_CONFIG = {
     //audience: "http://localhost:5000", //is there a way to specific the audience when making the jwt
     //responseType: "code", //(string, default: 'id_token'): The type of response desired from the OIDC provider.
     //grantType: "code",
-    scope: "openid profile email", //(string, default: 'openid'): The scope being requested from the OIDC provider.
+    scope: "openid profile email read:tacos", //(string, default: 'openid'): The scope being requested from the OIDC provider.
     //webAuthResponseType: "code"
 };
 

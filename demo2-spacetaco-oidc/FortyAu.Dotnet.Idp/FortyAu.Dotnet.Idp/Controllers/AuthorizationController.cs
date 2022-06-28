@@ -140,11 +140,11 @@ public class AuthorizationController : Controller
                 // Note: in this sample, the granted scopes match the requested scope
                 // but you may want to allow the user to uncheck specific scopes.
                 // For that, simply restrict the list of scopes before calling SetScopes.
-                identity.SetScopes(request.GetScopes());
 
                 // Automatically create a permanent authorization to avoid requiring explicit consent
                 // for future authorization or token requests containing the same scopes.
                 var authorization = authorizations.LastOrDefault();
+                var scopes = identity.GetScopes();
                 if (authorization is null)
                 {
                     authorization = await _authorizationManager.CreateAsync(
@@ -152,11 +152,13 @@ public class AuthorizationController : Controller
                         subject: await _userManager.GetUserIdAsync(user),
                         client: await _applicationManager.GetIdAsync(application),
                         type: OpenIddictConstants.AuthorizationTypes.Permanent,
-                        scopes: identity.GetScopes());
+                        scopes: scopes);
                 }
+                var principal = new ClaimsPrincipal(identity);
+                principal.SetScopes(request.GetScopes());
 
 
-                return SignIn(new ClaimsPrincipal(identity), OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+                return SignIn(principal, OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
 
             // At this point, no authorization was found in the database and an error must be returned
             // if the client application specified prompt=none in the authorization request.
@@ -229,11 +231,10 @@ public class AuthorizationController : Controller
             .AddClaim(OpenIddictConstants.Claims.Name, await _userManager.GetUserNameAsync(user));
         var roles = await _userManager.GetRolesAsync(user);
         identity.AddClaims(roles.Select(role => new Claim(OpenIddictConstants.Claims.Role, role)));
-
         // Note: in this sample, the granted scopes match the requested scope
         // but you may want to allow the user to uncheck specific scopes.
         // For that, simply restrict the list of scopes before calling SetScopes.
-        identity.SetScopes(request.GetScopes());
+        //identity.SetScopes(request.GetScopes());
 
         // Automatically create a permanent authorization to avoid requiring explicit consent
         // for future authorization or token requests containing the same scopes.
@@ -248,9 +249,10 @@ public class AuthorizationController : Controller
                 scopes: identity.GetScopes());
         }
 
-
+        var principal = new ClaimsPrincipal(identity);
+        principal.SetScopes(request.GetScopes());
         // Returning a SignInResult will ask OpenIddict to issue the appropriate access/identity tokens.
-        return SignIn(new ClaimsPrincipal(identity), OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+        return SignIn(principal, OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
     }
 
     [Authorize, FormValueRequired("submit.Deny")]

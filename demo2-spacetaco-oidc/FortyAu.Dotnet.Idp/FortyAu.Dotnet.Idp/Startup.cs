@@ -1,4 +1,5 @@
 ﻿using FortyAu.Dotnet.Idp.Data;
+using FortyAu.Dotnet.Idp.Utilities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Quartz;
@@ -64,14 +65,22 @@ public class Startup
             // Register the OpenIddict server components.
             .AddServer(options =>
             {
+                options.DisableAccessTokenEncryption();
                 // Enable the authorization, logout, token and userinfo endpoints.
                 options.SetAuthorizationEndpointUris("/connect/authorize")
-                       .SetLogoutEndpointUris("/connect/logout")
-                       .SetTokenEndpointUris("/connect/token")
-                       .SetUserinfoEndpointUris("/connect/userinfo");
+                    .SetLogoutEndpointUris("/connect/logout")
+                    .SetTokenEndpointUris("/connect/token")
+                    .SetUserinfoEndpointUris("/connect/userinfo");
 
                 // Mark the "email", "profile" and "roles" scopes as supported scopes.
-                options.RegisterScopes(Scopes.Email, Scopes.Profile, Scopes.Roles);
+                options.RegisterScopes(
+                    Scopes.Email, 
+                    Scopes.Profile, 
+                    Scopes.Roles,
+                    SpaceTacoScopes.GetTacos,
+                    SpaceTacoScopes.GiveTacos,
+                    SpaceTacoScopes.PurchaseItem,
+                    SpaceTacoScopes.GetShopItems);
 
                 // Note: this sample only uses the authorization code flow but you can enable
                 // the other flows if you need to support implicit, password or client credentials.
@@ -108,7 +117,8 @@ public class Startup
             });
         // Register the worker responsible for seeding the database.
         // Note: in a real world application, this step should be part of a setup script.
-        services.AddHostedService<Worker>();
+        services.AddHostedService<ClientRegistrationWorker>();
+        services.AddHostedService<SeedUserWorker>();
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

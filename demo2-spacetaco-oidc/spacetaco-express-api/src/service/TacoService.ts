@@ -51,6 +51,34 @@ export class TacoService {
             givenById: taco.createdFrom.payerId
         }));
     }
+
+    async getUserTacoSummary(userId: string): Promise<{userId: string, tacosAvailable: number}>{
+        let userRecord = await this.prisma.user.findUnique({
+            where: {id: userId},
+            select: {
+                id: true,
+                allocatedTacos: true
+            }
+        });
+        if(userRecord === null){
+            //Not very restful to create during a GET, but whatever this is a demo
+            userRecord = await this.prisma.user.create({
+                data: {
+                    id: userId,
+                    allocatedTacos: 25
+                },
+                select: {
+                    id: true,
+                    allocatedTacos: true
+                }
+            })
+        }
+        return {
+            userId: userRecord.id,
+            tacosAvailable: userRecord.allocatedTacos
+        }
+    }
+
     async giveTaco(request: GiveTacoRequest): Promise<TacoTransactionRecord> {
         const created = await this.prisma.$transaction(async (db) => {
             const val = await db.$executeRaw`update "User"

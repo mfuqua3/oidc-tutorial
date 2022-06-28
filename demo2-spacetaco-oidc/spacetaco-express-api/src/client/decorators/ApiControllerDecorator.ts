@@ -7,7 +7,7 @@ import {AuthorizationMiddleware} from "../middlewares/AuthorizationMiddleware";
 
 export function ApiController(options: PathType | ControllerOptions) {
     return useDecorators(
-        Controller("/api/" + (options) + "/"),
+        Controller("/"+ (options) + "/"),
         Use(AuthenticationMiddleware),
         Use(AuthorizationMiddleware),
         Returns(401),

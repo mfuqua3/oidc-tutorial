@@ -12,7 +12,7 @@ export const AuthContext = React.createContext<IAuthService>({
     logout: () => ({}),
     signoutRedirectCallback: () => ({}),
     isAuthenticated: () => false,
-    signinRedirect: () => ({}),
+    signInRedirect: () => ({}),
     signinSilentCallback: () => ({}),
     createSigninRequest: () => ({})
 });
