@@ -1,25 +1,22 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import logo from './logo.svg';
 import './App.css';
+import {AuthContext} from "./providers/AuthProvider";
+import {Button} from "@mui/material";
+import {Routes, Route} from "react-router-dom";
+import Callback from "./components/Callback";
 
 function App() {
+  const auth = useContext(AuthContext);
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+      <Routes>
+        <Route path={"/"} element={
+          <>
+            <Button onClick={()=> auth.signinRedirect()}>Sign In</Button>
+          </>
+        }></Route>
+        <Route path={"/signin-oidc"} element={<Callback/>}/>
+      </Routes>
   );
 }
 
