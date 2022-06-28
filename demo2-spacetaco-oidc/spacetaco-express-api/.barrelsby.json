@@ -1,6 +1,7 @@
 {
   "directory": [
-    "./src/controllers/rest"
+    "./src/controllers",
+    "./src/data"
   ],
   "exclude": [
     "__mock__",

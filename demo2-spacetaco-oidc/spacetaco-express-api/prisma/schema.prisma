@@ -1,0 +1,79 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["interactiveTransactions"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String           @id
+  allocatedTacos Int
+  awardsReceived TacoAwardPayee[]
+  awardsGiven    TacoAwardPayer[]
+  purchase       TacoPurchase[]
+  Taco           Taco[]
+}
+
+model Taco {
+  id            Int           @id @default(autoincrement())
+  createdAt    DateTime       @default(now())
+  ownerId       String
+  owner         User          @relation(fields: [ownerId], references: [id])
+  createdFromId Int
+  createdFrom   TacoAward     @relation(fields: [createdFromId], references: [id])
+  spentWithId   Int?
+  spentWith     TacoPurchase? @relation(fields: [spentWithId], references: [id])
+}
+
+model TacoAwardPayer {
+  tacoAwardId Int
+  userId      String
+  tacoAward   TacoAward?
+  user        User       @relation(fields: [userId], references: [id])
+
+  @@id([tacoAwardId, userId])
+}
+
+model TacoAwardPayee {
+  tacoAwardId Int
+  userId      String
+  tacoAward   TacoAward?
+  user        User       @relation(fields: [userId], references: [id])
+
+  @@id([tacoAwardId, userId])
+}
+
+model TacoAward {
+  id           Int            @id @default(autoincrement())
+  payerId      String
+  payer        TacoAwardPayer @relation(fields: [id, payerId], references: [tacoAwardId, userId])
+  payeeId      String
+  payee        TacoAwardPayee @relation(fields: [id, payeeId], references: [tacoAwardId, userId])
+  note         String
+  createdTacos Taco[]
+  createdAt    DateTime       @default(now())
+
+  @@unique([id, payeeId])
+  @@unique([id, payerId])
+}
+
+model TacoPurchase {
+  id         Int           @id @default(autoincrement())
+  payerId    String
+  spentTacos Taco[]
+  itemId     Int
+  item       TacoTruckItem @relation(fields: [itemId], references: [id])
+  User       User?         @relation(fields: [userId], references: [id])
+  userId     String?
+}
+
+model TacoTruckItem {
+  id           Int            @id @default(autoincrement())
+  name         String
+  cost         Int
+  icon         String
+  TacoPurchase TacoPurchase[]
+}
