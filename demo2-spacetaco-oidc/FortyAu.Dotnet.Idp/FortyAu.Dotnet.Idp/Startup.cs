@@ -127,7 +127,12 @@ public class Startup
         }
         app.UseHttpsRedirection();
         app.UseStaticFiles();
-
+        app.UseCors(opt =>
+        {
+            opt.AllowAnyHeader()
+                .AllowAnyOrigin()
+                .AllowAnyMethod();
+        });
         app.UseRouting();
 
         app.UseAuthentication();

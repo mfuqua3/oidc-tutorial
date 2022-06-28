@@ -20,6 +20,8 @@ public class Worker : IHostedService
 
         var manager = scope.ServiceProvider.GetRequiredService<IOpenIddictApplicationManager>();
 
+        var val = await manager.FindByClientIdAsync("space-taco", cancellationToken);
+        await manager.DeleteAsync(val);
         if (await manager.FindByClientIdAsync("space-taco", cancellationToken) == null)
         {
             await manager.CreateAsync(new OpenIddictApplicationDescriptor
@@ -30,11 +32,11 @@ public class Worker : IHostedService
                 DisplayName = "Space Taco Application",
                 PostLogoutRedirectUris =
                 {
-                    new Uri("https://localhost:44338/signout-callback-oidc")
+                    new Uri("https://localhost:3000/signout-callback-oidc")
                 },
                 RedirectUris =
                 {
-                    new Uri("https://localhost:44338/signin-oidc")
+                    new Uri("http://localhost:3000/signin-oidc")
                 },
                 Permissions =
                 {
