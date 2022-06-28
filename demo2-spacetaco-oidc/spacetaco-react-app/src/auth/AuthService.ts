@@ -1,5 +1,6 @@
 import { IDENTITY_CONFIG, METADATA_OIDC } from "../utils";
 import { UserManager, WebStorageStateStore, Log } from "oidc-client";
+import axios from "axios";
 
 export interface IAuthService {
     signinRedirectCallback: () => void;
@@ -59,6 +60,9 @@ export default class AuthService implements IAuthService {
         if (!user) {
             return await this.UserManager.signinRedirectCallback();
         }
+        axios.defaults.headers.common = {
+            Authorization: `Bearer ${user.access_token}`
+        };
         return user;
     };
 
@@ -81,9 +85,14 @@ export default class AuthService implements IAuthService {
 
 
     isAuthenticated = () => {
-        const oidcStorage = JSON.parse(sessionStorage.getItem(`oidc.user:${process.env.REACT_APP_AUTHORITY ?? ""}:${process.env.REACT_APP_CLIENT_ID ?? ""}`) ?? "")
+        try {
+            const oidcStorage = JSON.parse(sessionStorage.getItem(`oidc.user:${process.env.REACT_APP_AUTHORITY ?? ""}:${process.env.REACT_APP_CLIENT_ID ?? ""}`) ?? "")
+            return (!!oidcStorage && !!oidcStorage.access_token)
+        }
+        catch{
+            return false;
+        }
 
-        return (!!oidcStorage && !!oidcStorage.access_token)
     };
 
     signinSilent = () => {

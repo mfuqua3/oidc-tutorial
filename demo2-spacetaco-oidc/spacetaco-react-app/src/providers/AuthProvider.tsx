@@ -1,8 +1,9 @@
 import React, {ReactNode} from "react";
 import AuthService, {IAuthService} from "../auth/AuthService";
+import {User} from "oidc-client";
 
 export const AuthContext = React.createContext<IAuthService>({
-    getUser(): Promise<any> {
+    getUser(): Promise<User | undefined> {
         return Promise.resolve(undefined);
     }, navigateToScreen(): void {
     }, parseJwt(token: string): any {

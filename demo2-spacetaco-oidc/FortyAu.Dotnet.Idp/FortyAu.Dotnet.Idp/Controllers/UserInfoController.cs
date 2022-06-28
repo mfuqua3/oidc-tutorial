@@ -3,8 +3,10 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using OpenIddict.Abstractions;
 using OpenIddict.Server.AspNetCore;
+using OpenIddict.Validation.AspNetCore;
 using static OpenIddict.Abstractions.OpenIddictConstants;
 
 namespace FortyAu.Dotnet.Idp.Controllers;
@@ -12,10 +14,27 @@ namespace FortyAu.Dotnet.Idp.Controllers;
 public class UserinfoController : Controller
 {
     private readonly UserManager<OidcUser> _userManager;
+    private readonly OidcDbContext _dbContext;
 
-    public UserinfoController(UserManager<OidcUser> userManager)
-        => _userManager = userManager;
+    public UserinfoController(UserManager<OidcUser> userManager, OidcDbContext dbContext)
+    {
+        _userManager = userManager;
+        _dbContext = dbContext;
+    }
 
+    [Authorize(AuthenticationSchemes = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme)]
+    [HttpGet("~/api/users")]
+    public async Task<IActionResult> GetUsers()
+    {
+        var users = await _dbContext.Users
+            .OrderBy(x => x.UserName)
+            .Select(x => new
+            {
+                username = x.UserName,
+                userId = x.Id
+            }).ToListAsync();
+        return Ok(users);
+    }
     //
     // GET: /api/userinfo
     [Authorize(AuthenticationSchemes = OpenIddictServerAspNetCoreDefaults.AuthenticationScheme)]

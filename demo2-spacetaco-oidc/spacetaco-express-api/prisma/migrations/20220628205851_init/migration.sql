@@ -19,25 +19,25 @@ CREATE TABLE "Taco" (
 
 -- CreateTable
 CREATE TABLE "TacoAwardPayer" (
-    "tacoAwardId" INTEGER NOT NULL,
+    "id" SERIAL NOT NULL,
     "userId" TEXT NOT NULL,
 
-    CONSTRAINT "TacoAwardPayer_pkey" PRIMARY KEY ("tacoAwardId","userId")
+    CONSTRAINT "TacoAwardPayer_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "TacoAwardPayee" (
-    "tacoAwardId" INTEGER NOT NULL,
+    "id" SERIAL NOT NULL,
     "userId" TEXT NOT NULL,
 
-    CONSTRAINT "TacoAwardPayee_pkey" PRIMARY KEY ("tacoAwardId","userId")
+    CONSTRAINT "TacoAwardPayee_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "TacoAward" (
     "id" SERIAL NOT NULL,
-    "payerId" TEXT NOT NULL,
-    "payeeId" TEXT NOT NULL,
+    "payerId" INTEGER NOT NULL,
+    "payeeId" INTEGER NOT NULL,
     "note" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -65,10 +65,10 @@ CREATE TABLE "TacoTruckItem" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "TacoAward_id_payeeId_key" ON "TacoAward"("id", "payeeId");
+CREATE UNIQUE INDEX "TacoAward_payerId_key" ON "TacoAward"("payerId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "TacoAward_id_payerId_key" ON "TacoAward"("id", "payerId");
+CREATE UNIQUE INDEX "TacoAward_payeeId_key" ON "TacoAward"("payeeId");
 
 -- AddForeignKey
 ALTER TABLE "Taco" ADD CONSTRAINT "Taco_ownerId_fkey" FOREIGN KEY ("ownerId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -86,10 +86,10 @@ ALTER TABLE "TacoAwardPayer" ADD CONSTRAINT "TacoAwardPayer_userId_fkey" FOREIGN
 ALTER TABLE "TacoAwardPayee" ADD CONSTRAINT "TacoAwardPayee_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "TacoAward" ADD CONSTRAINT "TacoAward_id_payerId_fkey" FOREIGN KEY ("id", "payerId") REFERENCES "TacoAwardPayer"("tacoAwardId", "userId") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "TacoAward" ADD CONSTRAINT "TacoAward_payerId_fkey" FOREIGN KEY ("payerId") REFERENCES "TacoAwardPayer"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "TacoAward" ADD CONSTRAINT "TacoAward_id_payeeId_fkey" FOREIGN KEY ("id", "payeeId") REFERENCES "TacoAwardPayee"("tacoAwardId", "userId") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "TacoAward" ADD CONSTRAINT "TacoAward_payeeId_fkey" FOREIGN KEY ("payeeId") REFERENCES "TacoAwardPayee"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "TacoPurchase" ADD CONSTRAINT "TacoPurchase_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
