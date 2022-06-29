@@ -95,7 +95,8 @@ public class Startup
                        .EnableLogoutEndpointPassthrough()
                        .EnableTokenEndpointPassthrough()
                        .EnableUserinfoEndpointPassthrough()
-                       .EnableStatusCodePagesIntegration();
+                       .EnableStatusCodePagesIntegration()
+                       .DisableTransportSecurityRequirement();
             })
 
             // Register the OpenIddict validation components.

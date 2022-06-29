@@ -1,0 +1,108 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:latest
+    restart: always
+    ports:
+      - "5440:5432"
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+      - ./server/prisma/scripts:/var/lib/postgresql/scripts
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  idp:
+    build:
+      dockerfile: ./Dockerfile
+      context: ./Dotnet.Idp
+      args:
+        - http_proxy
+        - https_proxy
+        - no_proxy
+        - CONFIGURATION=DEBUG
+    depends_on:
+      - postgres
+    ports:
+      - "7113:7113"
+    stdin_open: true # -i
+    tty: true # -t
+    environment:
+      ConnectionStrings:DefaultConnection: "Server=postgres;Database=spacetacos;User Id=postgres;Password=password"
+      Authentication:Google:ClientId: "ENTER GOOGLE CREDS"
+      Authentication:Google:ClientSecret: "ENTER GOOGLE CREDS"
+      ASPNETCORE_ENVIRONMENT: "Development"
+      PORT: 7113
+  api:
+    build:
+      dockerfile: ./Dockerfile
+      context: ./spacetaco-express-api
+      args:
+        - http_proxy
+        - https_proxy
+        - no_proxy
+    depends_on:
+      postgres:
+          condition: service_healthy
+      idp:
+          condition: service_healthy
+    command: bash -c "rm -rf ./node_modules/.prisma/* && npm install && npx prisma migrate dev && npm start"
+    ports:
+      - "8083:8083"
+    stdin_open: true # -i
+    tty: true # -t
+    volumes:
+      - ./spacetaco-express-api/src:/opt/src
+      - ./spacetaco-express-api/package.json:/opt/package.json
+      - ./spacetaco-express-api/package-lock.json:/opt/package-lock.json
+      - ./spacetaco-express-api/prisma:/opt/prisma
+      - ./spacetaco-express-api/node_modules/.prisma:/opt/node_modules/.prisma
+    environment:
+      - DATABASE_URL=postgresql://postgres:password@postgres:5432/spacetacos?schema=public
+      - JWT_ISSUER=http://localhost:7113/
+      - JWT_AUTHORITY=http://idp:7113
+  react:
+    stdin_open: true
+    environment:
+      - PORT=3000
+      - REACT_APP_API_ROOT=http://localhost:8083/api/
+      - REACT_APP_AUTHORITY=http://localhost:7113
+      - REACT_APP_CLIENT_ID=space-taco
+      - REACT_APP_CLIENT_SECRET=901564A5-E7FE-42CB-B10D-61EF6A8F3654
+      - REACT_APP_REDIRECT_URL=http://localhost:3000/signin-oidc
+      - REACT_APP_ISSUER=http://localhost:7113/
+    depends_on:
+      idp:
+        condition: service_healthy
+    build:
+      dockerfile: Dockerfile
+      context: ./spacetaco-react-app
+    volumes:
+      - ./spacetaco-react-app/src:/app/src
+      - ./spacetaco-react-app/build:/app/build
+      - ./spacetaco-react-app/package.json:/app/package.json
+      - ./spacetaco-react-app/package-lock.json:/app/package-lock.json
+      - ./spacetaco-react-app/tsconfig.json:/app/tsconfig.json
+    ports:
+      - "3000:3000"
+  angular:
+    stdin_open: true
+    depends_on:
+      idp:
+        condition: service_healthy
+    build:
+      dockerfile: Dockerfile
+      context: ./tacotime-angular-app
+    volumes:
+      - ./tacotime-angular-appp/src:/app/src
+      - ./tacotime-angular-app/build:/app/build
+      - ./tacotime-angular-app/package.json:/app/package.json
+      - ./tacotime-angular-app/package-lock.json:/app/package-lock.json
+      - ./tacotime-angular-app/tsconfig.json:/app/tsconfig.json
+    ports:
+      - "4200:4200"
