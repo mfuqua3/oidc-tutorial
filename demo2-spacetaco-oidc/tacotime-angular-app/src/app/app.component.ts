@@ -6,5 +6,5 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  title = 'tacotime-angular-app';
+  title = 'tacowatch-angular-app';
 }
