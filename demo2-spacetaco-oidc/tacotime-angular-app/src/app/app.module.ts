@@ -1,21 +1,34 @@
-import { NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
+import {NgModule} from '@angular/core';
+import {BrowserModule} from '@angular/platform-browser';
 
-import { AppComponent } from './app.component';
-import {ClarityModule} from "@clr/angular";
+import {AppComponent} from './app.component';
 import {AuthModule} from "./auth/auth.module";
-import {TacoWatchModule} from "./tacowatch/taco-watch.module";
-import {RouterModule} from "@angular/router";
+import {RouterModule, Routes} from "@angular/router";
+import {LoginComponent} from "./auth/login/login.component";
+import {CallbackComponent} from "./auth/callback/callback.component";
+import {HomeComponent} from './home/home.component';
+import {TacoWatchComponent} from "./tacowatch/taco-watch.component";
+import {AuthorizeGuard} from "./auth/authorize.guard";
+import {HttpClientModule} from "@angular/common/http";
+
+const routes: Routes = [
+  {path: '', component: HomeComponent},
+  {path: "login", component: LoginComponent},
+  {path: "signin-oidc", component: CallbackComponent},
+  {path: "tacos", component: TacoWatchComponent, canActivate: [AuthorizeGuard]},
+]
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    HomeComponent,
+    TacoWatchComponent
   ],
   imports: [
     BrowserModule,
-    ClarityModule,
+    HttpClientModule,
     AuthModule,
-    TacoWatchModule
+    RouterModule.forRoot(routes)
   ],
   exports: [
     RouterModule
@@ -23,4 +36,5 @@ import {RouterModule} from "@angular/router";
   providers: [],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {
+}

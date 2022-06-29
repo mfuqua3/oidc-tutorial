@@ -1,15 +1,25 @@
-import { Component, OnInit } from '@angular/core';
+import {Component} from '@angular/core';
+import {ClrLoadingState} from "@clr/angular";
+import AuthService from "../auth.service";
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent {
+  loginButtonState: ClrLoadingState = ClrLoadingState.DEFAULT;
 
-  constructor() { }
+  constructor(private readonly authService: AuthService) {
+  }
 
-  ngOnInit(): void {
+  async login() {
+    this.loginButtonState = ClrLoadingState.LOADING;
+    try {
+      await this.authService.signInRedirect();
+    } finally {
+      this.loginButtonState = ClrLoadingState.DEFAULT;
+    }
   }
 
 }

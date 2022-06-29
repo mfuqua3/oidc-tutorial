@@ -68,11 +68,11 @@ public class ClientRegistrationWorker : IHostedService
                 DisplayName = "Taco Time Application",
                 PostLogoutRedirectUris =
                 {
-                    new Uri("https://localhost:44338/signout-callback-oidc")
+                    new Uri("http://localhost:4200/signout-callback-oidc")
                 },
                 RedirectUris =
                 {
-                    new Uri("https://localhost:44338/signin-oidc")
+                    new Uri("http://localhost:4200/signin-oidc")
                 },
                 Permissions =
                 {
@@ -85,9 +85,7 @@ public class ClientRegistrationWorker : IHostedService
                     Permissions.Scopes.Email,
                     Permissions.Scopes.Profile,
                     Permissions.Scopes.Roles,
-                    Permissions.Prefixes.Scope + SpaceTacoScopes.GetTacos,
-                    Permissions.Prefixes.Scope + SpaceTacoScopes.GiveTacos,
-                    Permissions.Prefixes.Scope + SpaceTacoScopes.GetShopItems
+                    Permissions.Prefixes.Scope + SpaceTacoScopes.GetTacos
                 },
                 Requirements =
                 {

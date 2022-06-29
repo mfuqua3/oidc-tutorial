@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {Log, User, UserManager, WebStorageStateStore} from "oidc-client";
-import {BehaviorSubject, Observable} from "rxjs";
+import {BehaviorSubject, lastValueFrom, Observable} from "rxjs";
 import {environment} from "../../environments/environment";
 
 @Injectable({
@@ -9,13 +9,16 @@ import {environment} from "../../environments/environment";
 export default class AuthService {
   private userManager: UserManager;
   private userSubject = new BehaviorSubject<User|null>(null);
+  private initializingSubject = new BehaviorSubject(false);
   user$: Observable<User|null> = this.userSubject.asObservable();
+  initializing$: Observable<boolean> = this.initializingSubject.asObservable();
 
   constructor() {
       this.userManager = new UserManager({
         authority: environment.oidcAuthority,
         client_id: environment.oidcClientId,
         client_secret: environment.oidcClientSecret,
+        redirect_uri: `${window.location.origin}/signin-oidc`,
         loadUserInfo: true,
         automaticSilentRenew: true,
         scope: "openid email profile read:tacos",
@@ -23,6 +26,7 @@ export default class AuthService {
         userStore: new WebStorageStateStore({store: window.sessionStorage})
       });
       this.userManager.events.addUserLoaded((user) => {
+        this.userSubject.next(user);
         if (window.location.href.indexOf("signin-oidc") !== -1) {
           this.navigateToScreen();
         }
@@ -35,7 +39,15 @@ export default class AuthService {
         console.log("token expired");
         this.signinSilent();
       });
-      this.userManager.getUser().then(user=>this.userSubject.next(user));
+      this.userManager.getUser()
+        .then(user=> {
+          console.log(user);
+          this.userSubject.next(user)
+        })
+        .finally(()=> {
+          console.log('initialized')
+          this.initializingSubject.next(true)
+        });
 
     // Logger
     Log.logger = console;
@@ -56,7 +68,7 @@ export default class AuthService {
 
   signInRedirect() {
     localStorage.setItem("redirectUri", window.location.pathname);
-    this.userManager?.signinRedirect({});
+    return this.userManager?.signinRedirect({});
   };
 
 
@@ -65,8 +77,8 @@ export default class AuthService {
   };
 
 
-  isAuthenticated() {
-    return this.userSubject.getValue() !== null;
+  async isAuthenticated() {
+    return await this.userManager.getUser() !== null;
   };
 
   signinSilent() {

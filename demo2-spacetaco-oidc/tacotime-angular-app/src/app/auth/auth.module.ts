@@ -1,15 +1,10 @@
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { LoginComponent } from './login/login.component';
-import { CallbackComponent } from './callback/callback.component';
+import {NgModule} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {LoginComponent} from './login/login.component';
+import {CallbackComponent} from './callback/callback.component';
 import {HTTP_INTERCEPTORS} from "@angular/common/http";
 import {AuthInterceptor} from "./auth.interceptor";
-import {RouterModule, Routes} from "@angular/router";
-
-const routes: Routes = [
-  {path:"login", component: LoginComponent},
-  {path:"signin-oidc", component: CallbackComponent}
-]
+import {SharedModule} from "../shared/shared.module";
 
 @NgModule({
   declarations: [
@@ -18,7 +13,7 @@ const routes: Routes = [
   ],
   imports: [
     CommonModule,
-    RouterModule.forRoot(routes)
+    SharedModule,
   ],
   providers: [
     {
@@ -28,4 +23,5 @@ const routes: Routes = [
     }
   ]
 })
-export class AuthModule { }
+export class AuthModule {
+}
