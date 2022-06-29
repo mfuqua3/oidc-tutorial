@@ -11,7 +11,7 @@ function OAuthCallback() {
     const [token, setToken] = useState<string|null>(null);
     const formBody = {
         client_id:"990338725579984968",
-        client_secret:"SSkMhufqiOwYw_9u0-f11mKK3orKpTiI",
+        client_secret:"",
         grant_type:"authorization_code",
         code:code,
         redirect_url: (window.location.origin + "/signin-discord")
