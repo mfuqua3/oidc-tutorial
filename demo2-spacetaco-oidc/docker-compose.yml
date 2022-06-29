@@ -1,0 +1,168 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:latest
+    restart: always
+    ports:
+      - "5440:5432"
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+      - ./server/prisma/scripts:/var/lib/postgresql/scripts
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  prisma:
+    build:
+      dockerfile: ./Dockerfile
+      context: ./server
+    depends_on:
+      postgres:
+        condition: service_healthy
+    image: "server"
+    command: sh -c "sleep infinity"
+    stdin_open: true # -i
+    tty: true # -t
+    volumes:
+      - ./server/src:/opt/src
+      - ./server/package.json:/opt/package.json
+      - ./server/views:/opt/views
+      - ./server/prisma:/opt/prisma
+      - ./server/node_modules/.prisma:/opt/node_modules/.prisma
+    environment:
+      DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/congenius_development?schema=public"
+      NODE_ENV: "development"
+      JWT_AUDIENCE: "localhost"
+      JWT_ISSUER: "https://dev-o59jt02q.us.auth0.com/"
+      JWT_AUTHORITY: "https://dev-o59jt02q.us.auth0.com"
+    dns_opt:
+      - use-vc
+      - no-tld-query
+
+  server:
+    build:
+      dockerfile: ./Dockerfile
+      context: ./server
+      args:
+        - http_proxy
+        - https_proxy
+        - no_proxy
+    image: "server"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: bash -c "rm -rf ./node_modules/.prisma/* && npm install && npx prisma generate && npm start"
+    ports:
+      - "3000:3000"
+    stdin_open: true # -i
+    tty: true # -t
+    volumes:
+      - ./server/src:/opt/src
+      - ./server/package.json:/opt/package.json
+      - ./server/package-lock.json:/opt/package-lock.json
+      - ./server/jest.config.js:/opt/jest.config.js
+      - ./server/views:/opt/views
+      - ./server/prisma:/opt/prisma
+      - ./server/node_modules/.prisma:/opt/node_modules/.prisma
+    environment:
+      DATABASE_URL: "postgresql://congenius_user:password@postgres:5432/congenius_development?schema=public"
+      NODE_ENV: "development"
+      JWT_AUDIENCE: "localhost"
+      JWT_ISSUER: "https://dev-o59jt02q.us.auth0.com/"
+      JWT_AUTHORITY: "https://dev-o59jt02q.us.auth0.com"
+      AUTH0_CLIENT_ID: "Z0GIDHYjxfOtNlODsPxggzy4jmELl1Py"
+      AWS_ACCOUNT_ID: "269534501455"
+      AWS_MANAGED_FILES_BUCKET: "b7a2b6-sinkhole-managed-files"
+      AWS_PRESIGNED_PUT_COMMAND_TTL: 300
+      AWS_PRESIGNED_GET_COMMAND_TTL: 900
+    env_file: .env
+    dns_opt:
+      - use-vc
+      - no-tld-query
+
+  worker:
+    build:
+      dockerfile: ./Dockerfile
+      context: ./server
+      args:
+        - http_proxy
+        - https_proxy
+        - no_proxy
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: bash -c "rm -rf ./node_modules/.prisma/* && npm install && npx prisma generate && npm run worker"
+    stdin_open: true # -i
+    tty: true # -t
+    volumes:
+      - ./server/src:/opt/src
+      - ./server/package.json:/opt/package.json
+      - ./server/package-lock.json:/opt/package-lock.json
+      - ./server/jest.config.js:/opt/jest.config.js
+      - ./server/views:/opt/views
+      - ./server/prisma:/opt/prisma
+      - ./server/node_modules/.prisma:/opt/node_modules/.prisma
+    environment:
+      DATABASE_URL: "postgresql://congenius_user:password@postgres:5432/congenius_development?schema=public"
+      NODE_ENV: "development"
+      AUTH0_CLIENT_ID: "Z0GIDHYjxfOtNlODsPxggzy4jmELl1Py"
+    env_file: .env
+    dns_opt:
+      - use-vc
+      - no-tld-query
+
+  client:
+    stdin_open: true
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - PORT=4001
+      - REACT_APP_API_ROOT=http://localhost:3000
+      - REACT_APP_AUTHORITY=dev-o59jt02q.us.auth0.com
+      - REACT_APP_AUDIENCE=localhost
+      - REACT_APP_CLIENT_ID=5OozcHJAmIzxxRWU1IbUtC2h4jEyZDbR
+    build:
+      dockerfile: Dockerfile
+      context: ./client
+      args:
+        fontawesome_npm_auth_token: ${FONTAWESOME_NPM_AUTH_TOKEN}
+    image: "client"
+
+    volumes:
+      - ./client/src:/app/src
+      - ./client/build:/app/build
+      - ./client/package.json:/app/package.json
+      - ./client/package-lock.json:/app/package-lock.json
+      - ./client/tsconfig.json:/app/tsconfig.json
+    ports:
+      - 4001:4001
+
+  storybook:
+    stdin_open: true
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - PORT=6006
+      - REACT_APP_API_ROOT=http://localhost:3000
+      - REACT_APP_AUTHORITY=dev-o59jt02q.us.auth0.com
+      - REACT_APP_AUDIENCE=localhost
+      - REACT_APP_CLIENT_ID=5OozcHJAmIzxxRWU1IbUtC2h4jEyZDbR
+    build:
+      dockerfile: Dockerfile
+      context: ./client
+      args:
+        fontawesome_npm_auth_token: ${FONTAWESOME_NPM_AUTH_TOKEN}
+    image: "client"
+    command: npm run storybook
+    volumes:
+      - ./client/.storybook:/app/.storybook
+      - ./client/src:/app/src
+      - ./client/package.json:/app/package.json
+      - ./client/package-lock.json:/app/package-lock.json
+      - ./client/tsconfig.json:/app/tsconfig.json
+    ports:
+      - 6006:6006
