@@ -9,13 +9,14 @@
 *.user
 *.userosscache
 *.sln.docstates
-
+*.idea
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
+appsettings.development.json
 
 # Mono auto generated files
 mono_crash.*
-
+*.env.development
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/
@@ -274,7 +275,7 @@ FakesAssemblies/
 # Node.js Tools for Visual Studio
 .ntvs_analysis.dat
 node_modules/
-
+**/*/node_modules/
 # Visual Studio 6 build log
 *.plg
 

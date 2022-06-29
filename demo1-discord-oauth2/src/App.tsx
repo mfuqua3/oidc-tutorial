@@ -46,7 +46,7 @@ function App() {
                     <TextField disabled value={redirectUri} onChange={(e) => setState(e.target.value)}
                                label={"Redirect URI"}/>
                     <Button onClick={tryAuthorize}>Generate URL</Button>
-                    <Typography variant={"h5"}>Response</Typography>
+                    <Typography variant={"h5"}>Authorization URL</Typography>
                     {httpResponse}
                 </Box>
             }/>
