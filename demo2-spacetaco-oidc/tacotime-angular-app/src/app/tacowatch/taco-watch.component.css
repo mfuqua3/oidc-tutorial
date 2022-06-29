@@ -1,0 +1,7 @@
+.taco-watch-container {
+  display: flex;
+  align-items: center;
+  margin: 20px;
+  flex-direction: column;
+  border: 2px solid black;
+}

@@ -1,0 +1,17 @@
+<div class="taco-watch-container">
+  <h1>Welcome to TACO WATCH</h1>
+  <h2>The only trusted source for TACO TRUTH</h2>
+  <h2>We protect you from the GLOBALIST TACO CABAL</h2>
+  <div *ngIf="tacos.length>0">
+    <h3>{{tacos.length}} tacos have been given out in total.</h3>
+    <h3>The last taco was given out on {{tacos[0].awardedOn}}</h3>
+    <h3>Curious....</h3>
+  </div>
+  <button (click)="tryGiveTaco()" class="btn btn-primary">
+    Make it Rain Tacos!
+  </button>
+  <div *ngIf="result">
+    <div>Blast. Foiled.</div>
+    <div style="color: red;max-width: 80vw;text-wrap: normal">{{result}}</div>
+  </div>
+</div>
